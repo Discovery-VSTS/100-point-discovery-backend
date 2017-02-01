@@ -9,17 +9,23 @@ class Member(models.Model):
         return self.name.__str__()
 
 
+class PointDistribution(models.Model):
+    week = models.DateField(primary_key=True)
+    is_final = models.BooleanField()
+
+    def __str__(self):
+        return self.week.__str__() + ", " + ("final" if self.is_final else "provisional")
+
+
 class GivenPoint(models.Model):
-    toMember = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_toMember")
+    from_member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_fromMember")
+    to_member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_toMember")
     points = models.IntegerField()
-    fromMember = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_fromMember")
+    point_distribution = models.ForeignKey(PointDistribution, on_delete=models.CASCADE, related_name="given_points")
     week = models.DateField()
-    is_provisional = models.BooleanField()
 
     class Meta:
-        unique_together = ('toMember', 'points', 'fromMember')
+        unique_together = ('to_member', 'points', 'from_member')
 
-
-class PointDistribution(models.Model):
-    GivenPoints = models.ManyToManyField(GivenPoint)
-    week = models.DateField()
+    def __str__(self):
+        return self.week.__str__() + ", from " + self.from_member.__str__() + " to " + self.to_member.__str__()
