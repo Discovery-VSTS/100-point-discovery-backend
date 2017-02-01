@@ -25,7 +25,7 @@ class GivenPoint(models.Model):
     week = models.DateField()
 
     class Meta:
-        unique_together = ('to_member', 'points', 'from_member')
+        unique_together = ('to_member', 'week', 'from_member')
 
     def __str__(self):
         return self.week.__str__() + ", from " + self.from_member.__str__() + " to " + self.to_member.__str__()
