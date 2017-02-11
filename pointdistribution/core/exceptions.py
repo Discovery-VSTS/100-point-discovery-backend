@@ -23,3 +23,9 @@ class ConflictInPointsToMemberException(APIException):
     status_code = 400
     default_detail = "There is a conflict of points with at lest one member in the group"
     default_code = 'bad_request'
+
+
+class NotCurrentWeekException(APIException):
+    status_code = 400
+    default_detail = "This operation can not be performed at this year and week"
+    default_code = 'bad_request'
