@@ -1,5 +1,5 @@
 from .exceptions import RepeatedPointValueException, MembersMissingException, InvalidSumPointsException, \
-    ConflictInPointsToMemberException
+    ConflictInPointsToMemberException, InvalidOrRepeatedMemberException
 
 from .models import GivenPoint
 
@@ -47,3 +47,15 @@ def validate_provisional_point_distribution(point_distribution, members_list):
         sum_points += points
     if sum_points != 100:
         raise InvalidSumPointsException()
+
+
+def check_point_distribution_includes_all_members(point_distribution, members_set):
+    given_points = point_distribution.given_points.all()
+    for given_point in given_points:
+        member = given_point.to_member
+        if member in members_set:
+            members_set.remove(member)
+        else:
+            raise InvalidOrRepeatedMemberException()
+    if len(members_set) > 0:
+        raise MembersMissingException()

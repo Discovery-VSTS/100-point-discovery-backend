@@ -29,3 +29,9 @@ class NotCurrentWeekException(APIException):
     status_code = 400
     default_detail = "This operation can not be performed at this year and week"
     default_code = 'bad_request'
+
+
+class InvalidOrRepeatedMemberException(APIException):
+    status_code = 400
+    default_detail = "A member is invalid or has received points twice"
+    default_code = 'bad_request'
