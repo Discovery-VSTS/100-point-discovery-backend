@@ -14,6 +14,10 @@ class GivenPointSerializer(serializers.ModelSerializer):
         model = GivenPoint
         fields = ('to_member', 'points', 'from_member', 'week')
 
+    def create(self, validated_data):
+        given_point = GivenPoint.objects.create(**validated_data)
+        return given_point
+
 
 class PointDistributionSerializer(serializers.ModelSerializer):
     given_points = GivenPointSerializer(many=True)
@@ -22,9 +26,9 @@ class PointDistributionSerializer(serializers.ModelSerializer):
         model = PointDistribution
         fields = ('given_points', 'week', 'is_final')
 
-    def create(self, validated_data):
+    def update(self, instance, validated_data):
         given_points_data = validated_data.pop('given_points')
-        point_distribution = PointDistribution.objects.create(**validated_data)
         for given_point_data in given_points_data:
-            GivenPoint.objects.create(point_distribution=point_distribution, **given_point_data)
-        return point_distribution
+            GivenPoint.objects.create(point_distribution=instance, **given_point_data)
+        instance.save()
+        return instance
