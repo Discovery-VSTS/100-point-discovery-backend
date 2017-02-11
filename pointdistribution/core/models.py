@@ -6,7 +6,7 @@ class Member(models.Model):
     email = models.EmailField(primary_key=True, max_length=30)
 
     def __str__(self):
-        return self.name.__str__()
+        return self.email.__str__()
 
 
 class PointDistribution(models.Model):
@@ -18,7 +18,8 @@ class PointDistribution(models.Model):
 
 
 class GivenPoint(models.Model):
-    from_member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_fromMember")
+    from_member = models.ForeignKey(Member, blank=True, null=True, on_delete=models.CASCADE,
+                                    related_name="%(app_label)s_%(class)s_fromMember")
     to_member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_toMember")
     points = models.IntegerField()
     point_distribution = models.ForeignKey(PointDistribution, on_delete=models.CASCADE, related_name="given_points")

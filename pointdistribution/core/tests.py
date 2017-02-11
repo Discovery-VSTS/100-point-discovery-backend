@@ -10,7 +10,7 @@ class MemberModelTest(TestCase):
         self.entry = Member(name="My entry title")
 
     def test_string_representation(self):
-        self.assertEqual(str(self.entry), self.entry.name)
+        self.assertEqual(str(self.entry), self.entry.email)
 
     def test_save(self):
         self.entry.save()
