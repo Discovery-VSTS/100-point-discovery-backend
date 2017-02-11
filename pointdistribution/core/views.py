@@ -15,7 +15,8 @@ class MemberList(generics.ListCreateAPIView):
 
 
 class PointDistributionHistory(APIView):
-    def get_object(self):
+    @staticmethod
+    def get_object():
         try:
             return PointDistribution.objects.filter(is_final=True)
         except PointDistribution.DoesNotExist:
@@ -44,7 +45,8 @@ class SendPoints(APIView):
 
 
 class PointDistributionWeek(APIView):
-    def get_object(self, week):
+    @staticmethod
+    def get_object(week):
         try:
             return PointDistribution.objects.get(week=week)
         except PointDistribution.DoesNotExist:
