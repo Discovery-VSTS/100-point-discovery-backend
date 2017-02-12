@@ -35,3 +35,9 @@ class InvalidOrRepeatedMemberException(APIException):
     status_code = 400
     default_detail = "A member is invalid or has received points twice"
     default_code = 'bad_request'
+
+
+class PointValueNotValidException(APIException):
+    status_code = 400
+    default_detail = "One of the given points exceeds 100 or contains a negative number"
+    default_code = 'bad_request'
