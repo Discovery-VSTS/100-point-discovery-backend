@@ -32,17 +32,23 @@ def validate_provisional_point_distribution(point_distribution, members_list):
     given_points = point_distribution.given_points.all()
     for given_point in given_points:
         points = given_point.points
-        to_member = given_point.to_member.__str__()
+        to_member = given_point.to_member
         if to_member in member_to_point and member_to_point[to_member] != points:
             raise ConflictInPointsToMemberException()
         member_to_point[to_member] = points
-        if points in point_to_member:
+        if points in point_to_member and point_to_member[points] != to_member:
             raise RepeatedPointValueException()
         point_to_member[points] = to_member
     if len(member_to_point) != len(members_list):
         raise MembersMissingException()
+    for given_point in given_points:
+        given_point.delete()
     sum_points = 0
+    week = point_distribution.week
     for member, points in member_to_point.items():
+        new_given_point_entry = GivenPoint(to_member=member, points=points,
+                                           point_distribution=point_distribution, week=week)
+        new_given_point_entry.save()
         sum_points += points
     if sum_points != 100:
         raise InvalidSumPointsException()
