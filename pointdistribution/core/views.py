@@ -1,7 +1,7 @@
 from .models import Member, GivenPoint, PointDistribution
 from .serializers import MemberSerializer, GivenPointSerializer, PointDistributionSerializer
-from .points_operation import validate_provisional_point_distribution, normalize_point_distribution, \
-    check_point_distribution_includes_all_members, check_all_point_values_are_valid
+from .points_operation import validate_provisional_point_distribution, check_point_distribution_includes_all_members, \
+    check_all_point_values_are_valid
 from .utils import is_current_week
 from .exceptions import NotCurrentWeekException
 
@@ -69,31 +69,6 @@ class PointDistributionWeek(APIView):
 
     def get(self, request, week):
         point_distribution = self.get_object(week)
-        serializer = PointDistributionSerializer(point_distribution)
-        return Response(serializer.data)
-
-
-class NormalizePointDistribution(APIView):
-    @staticmethod
-    def get_point_distribution(week):
-        try:
-            return PointDistribution.objects.get(week=week)
-        except PointDistribution.DoesNotExist:
-            raise Http404
-
-    @staticmethod
-    def get_all_members():
-        try:
-            return Member.objects.all()
-        except Member.DoesNotExist:
-            raise Http404
-
-    def put(self, request):
-        week = request.data['week']
-        point_distribution = self.get_point_distribution(week)
-        members_list = self.get_all_members()
-        normalize_point_distribution(point_distribution, members_list)
-        point_distribution = self.get_point_distribution(week)
         serializer = PointDistributionSerializer(point_distribution)
         return Response(serializer.data)
 
