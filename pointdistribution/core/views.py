@@ -58,6 +58,18 @@ class SendPoints(APIView):
         serializer.save()
         return Response(serializer.data)
 
+    def put(self, request):
+        week = request.data['week']
+        if not is_current_week(week, "%Y-%m-%d"):
+            raise NotCurrentWeekException()
+        point_distribution = self.get_or_create_point_distribution(week)
+        check_all_point_values_are_valid(point_distribution)
+        serializer = PointDistributionSerializer(point_distribution, data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data)
+
 
 class PointDistributionWeek(APIView):
     @staticmethod
