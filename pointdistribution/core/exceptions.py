@@ -41,3 +41,9 @@ class PointValueNotValidException(APIException):
     status_code = 400
     default_detail = "One of the given points exceeds 100 or contains a negative number"
     default_code = 'bad_request'
+
+
+class InvalidGivenPointsArchivedData(APIException):
+    status_code = 400
+    default_detail = "The data of a given point is malformed"
+    default_code = 'bad_request'

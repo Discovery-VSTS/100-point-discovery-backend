@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Member, GivenPoint, PointDistribution
+from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
 
 
 class MemberSerializer(serializers.ModelSerializer):
@@ -16,6 +16,19 @@ class GivenPointSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         given_point = GivenPoint.objects.create(**validated_data)
+        return given_point
+
+
+class GivenPointArchivedSerializer(serializers.ModelSerializer):
+    from_member = MemberSerializer()
+    to_member = MemberSerializer()
+
+    class Meta:
+        model = GivenPointArchived
+        fields = ('from_member', 'to_member', 'points', 'week')
+
+    def create(self, validated_data):
+        given_point = GivenPointArchived.objects.create(**validated_data)
         return given_point
 
 

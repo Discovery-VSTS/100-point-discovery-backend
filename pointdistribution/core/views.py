@@ -1,5 +1,5 @@
-from .models import Member, GivenPoint, PointDistribution
-from .serializers import MemberSerializer, GivenPointSerializer, PointDistributionSerializer
+from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
+from .serializers import MemberSerializer, GivenPointArchivedSerializer, PointDistributionSerializer
 from .points_operation import validate_provisional_point_distribution, check_point_distribution_includes_all_members, \
     check_all_point_values_are_valid
 from .utils import is_current_week
@@ -15,6 +15,28 @@ from rest_framework.response import Response
 class MemberList(generics.ListCreateAPIView):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
+
+
+class MemberPointsHistory(APIView):
+    @staticmethod
+    def get_member(email):
+        try:
+            return Member.objects.get(email=email)
+        except Member.DoesNotExist:
+            raise Http404
+
+    @staticmethod
+    def get_given_points_member(member):
+        try:
+            return GivenPointArchived.objects.filter(from_member=member)
+        except GivenPointArchived.DoesNotExist:
+            raise Http404
+
+    def get(self, request, email):
+        member = self.get_member(email)
+        given_points = self.get_given_points_member(member)
+        serializer = GivenPointArchivedSerializer(given_points, many=True)
+        return Response(serializer.data)
 
 
 class PointDistributionHistory(APIView):
