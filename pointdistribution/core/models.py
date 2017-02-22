@@ -30,3 +30,17 @@ class GivenPoint(models.Model):
 
     def __str__(self):
         return self.week.__str__() + ", from " + self.from_member.__str__() + " to " + self.to_member.__str__()
+
+
+class GivenPointArchived(models.Model):
+    from_member = models.ForeignKey(Member, blank=True, null=True, on_delete=models.CASCADE,
+                                    related_name="%(app_label)s_%(class)s_fromMember")
+    to_member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_toMember")
+    points = models.IntegerField()
+    week = models.DateField()
+
+    class Meta:
+        unique_together = ('to_member', 'week', 'from_member')
+
+    def __str__(self):
+        return self.week.__str__() + ", from " + self.from_member.__str__() + " to " + self.to_member.__str__()
