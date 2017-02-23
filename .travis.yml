@@ -10,4 +10,4 @@ deploy:
   provider: azure_web_apps
   username: "deployment-100"
   password: "100-points"
-  site: "100-points"
+  site: "100-point-discovery-backend"
