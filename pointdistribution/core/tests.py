@@ -24,8 +24,6 @@ class PointDistributionTest(TestCase):
     def test_string_representation_provisional(self):
         entry = PointDistribution(week="1970-01-01", is_final=False)
         self.assertEqual(str(entry), str(entry.week) + ", provisional")
-
-    def test_string_representation_final(self):
         entry = PointDistribution(week="1970-01-01", is_final=True)
         self.assertEqual(str(entry), str(entry.week) + ", final")
 
@@ -66,12 +64,6 @@ class GivenPointTest(TestCase):
 class MemberListTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-
-    def test_empty_history(self):
-        request = self.factory.get('/core/members/')
-        response = MemberList.as_view()(request)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, [])
 
     def test_full_history(self):
         self.entry1 = Member(name="Name1", email="name1@email.com")

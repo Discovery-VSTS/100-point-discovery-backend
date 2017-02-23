@@ -2,7 +2,7 @@ from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
 from .serializers import MemberSerializer, GivenPointArchivedSerializer, PointDistributionSerializer
 from .points_operation import validate_provisional_point_distribution, check_point_distribution_includes_all_members, \
     check_all_point_values_are_valid
-from .utils import is_current_week
+from .utils import is_current_week, get_member, filter_final_points_distributions, get_all_members
 from .exceptions import NotCurrentWeekException
 
 from django.http import Http404
@@ -19,13 +19,6 @@ class MemberList(generics.ListCreateAPIView):
 
 class MemberPointsHistory(APIView):
     @staticmethod
-    def get_member(email):
-        try:
-            return Member.objects.get(email=email)
-        except Member.DoesNotExist:
-            raise Http404
-
-    @staticmethod
     def get_given_points_member(member):
         try:
             return GivenPointArchived.objects.filter(from_member=member)
@@ -33,22 +26,15 @@ class MemberPointsHistory(APIView):
             raise Http404
 
     def get(self, request, email):
-        member = self.get_member(email)
+        member = get_member(email)
         given_points = self.get_given_points_member(member)
         serializer = GivenPointArchivedSerializer(given_points, many=True)
         return Response(serializer.data)
 
 
 class PointDistributionHistory(APIView):
-    @staticmethod
-    def get_object():
-        try:
-            return PointDistribution.objects.filter(is_final=True)
-        except PointDistribution.DoesNotExist:
-            raise Http404
-
     def get(self, request):
-        point_distribution_history = self.get_object()
+        point_distribution_history = filter_final_points_distributions()
         serializer = PointDistributionSerializer(point_distribution_history, many=True)
         return Response(serializer.data)
 
@@ -59,19 +45,13 @@ class SendPoints(APIView):
         obj, _ = PointDistribution.objects.get_or_create(week=week, is_final=False)
         return obj
 
-    @staticmethod
-    def get_all_members():
-        try:
-            return Member.objects.all()
-        except Member.DoesNotExist:
-            raise Http404
 
     def post(self, request):
         week = request.data['week']
         if not is_current_week(week, "%Y-%m-%d"):
             raise NotCurrentWeekException()
         point_distribution = self.get_or_create_point_distribution(week)
-        members_set = {self.get_all_members()}
+        members_set = {get_all_members()}
         check_point_distribution_includes_all_members(point_distribution, members_set)
         check_all_point_values_are_valid(point_distribution)
         serializer = PointDistributionSerializer(point_distribution, data=request.data)
