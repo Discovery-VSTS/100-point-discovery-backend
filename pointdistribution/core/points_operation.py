@@ -41,10 +41,9 @@ def validate_provisional_point_distribution(point_distribution, members_list):
         raise InvalidSumPointsException()
 
 
-def check_point_distribution_includes_all_members(point_distribution, members_set):
-    given_points = point_distribution.given_points.all()
+def check_batch_includes_all_members(given_points, members_set):
     for given_point in given_points:
-        member = given_point.to_member
+        member = given_point['to_member']
         if member in members_set:
             members_set.remove(member)
         else:
@@ -53,9 +52,8 @@ def check_point_distribution_includes_all_members(point_distribution, members_se
         raise MembersMissingException()
 
 
-def check_all_point_values_are_valid(point_distribution):
-    given_points = point_distribution.given_points.all()
+def check_all_point_values_are_valid(given_points):
     for given_point in given_points:
-        points = given_point.points
+        points = given_point['points']
         if points > 100 or points < 0:
             raise PointValueNotValidException()
