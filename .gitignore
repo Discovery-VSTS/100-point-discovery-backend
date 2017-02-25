@@ -6,4 +6,3 @@ __pycache__
 *.log
 .DS_Store
 .idea/
-migrations
