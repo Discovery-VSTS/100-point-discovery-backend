@@ -11,3 +11,5 @@ deploy:
   username: "deployment-100"
   password: "100-points"
   site: "100-point-discovery-backend"
+  verbose: true
+  on: deploy
