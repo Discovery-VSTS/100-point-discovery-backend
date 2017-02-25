@@ -15,8 +15,10 @@ from rest_framework.response import Response
 class MemberList(generics.ListCreateAPIView):
     """
     Get all the members, create a member
-    Endpoint: /v1/members
-    Methods: GET POST
+
+    Endpoint: **/v1/members**
+
+    Methods: *GET POST*
     """
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
@@ -25,8 +27,10 @@ class MemberList(generics.ListCreateAPIView):
 class MemberPointsHistory(APIView):
     """
     Get all the given points of a member
-    Endpoint: /v1/member/history/<email>
-    Methods: GET
+
+    Endpoint: **/v1/member/history/<email>**
+
+    Methods: *GET*
     """
     @staticmethod
     def get_given_points_member(member):
@@ -45,8 +49,10 @@ class MemberPointsHistory(APIView):
 class PointDistributionHistory(APIView):
     """
     Get all the past point distributions
-    Endpoint: /v1/point/distribution/history
-    Methods: GET
+
+    Endpoint: **/v1/point/distribution/history**
+
+    Methods: *GET*
     """
     def get(self, request):
         point_distribution_history = filter_final_points_distributions()
@@ -57,19 +63,24 @@ class PointDistributionHistory(APIView):
 class SendPoints(APIView):
     """
     Send points to team members. Date must be the current week
-    Endpoint: /v1/point/distribution/send
-    Methods: POST PUT
+
+    Endpoint: **/v1/point/distribution/send**
+
+    Methods: *POST PUT*
+
     Body:
+
+    ```
     {
         given_points: [
           {
-            to_member: "gascons1995@gmail.com",
+            to_member: "member1@email.com",
             points: 30,
             from_member: "me@me.com",
             week: "2017-01-01"
           },
           {
-            to_member: email: "paul@mynameis.com",
+            to_member: email: "member2@email.com",
             points: 0,
             from_member: "me@me.com",
             week: "2017-01-01"
@@ -77,6 +88,7 @@ class SendPoints(APIView):
         ],
         week: "2017-01-01"
     }
+    ```
     """
     @staticmethod
     def get_or_create_point_distribution(week):
@@ -114,8 +126,10 @@ class SendPoints(APIView):
 class PointDistributionWeek(APIView):
     """
     Get a point distribution of a past week
-    Endpoint: /v1/point/distribution/YYYY-MM-DD
-    Methods: GET
+
+    Endpoint: **/v1/point/distribution/YYYY-MM-DD**
+
+    Methods: *GET*
     """
     @staticmethod
     def get_object(week):
@@ -132,12 +146,16 @@ class PointDistributionWeek(APIView):
 
 class ValidateProvisionalPointDistribution(APIView):
     """
-        Validate a point distribution
-        Endpoint: /v1/point/distribution/validate
-        Methods: PUT
-        Body:
-        {"week":"YYYY-MM-DD"}
-        """
+    Validate a point distribution
+
+    Endpoint: **/v1/point/distribution/validate**
+
+    Methods: *PUT*
+
+    Body:
+
+    `{"week":"YYYY-MM-DD"}`
+    """
     @staticmethod
     def get_point_distribution(week):
         try:
