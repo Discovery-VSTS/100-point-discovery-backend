@@ -1,6 +1,6 @@
 from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
 from .serializers import MemberSerializer, GivenPointArchivedSerializer, PointDistributionSerializer
-from .points_operation import validate_provisional_point_distribution, check_point_distribution_includes_all_members, \
+from .points_operation import validate_provisional_point_distribution, check_batch_includes_all_members, \
     check_all_point_values_are_valid
 from .utils import is_current_week, get_member, filter_final_points_distributions, get_all_members
 from .exceptions import NotCurrentWeekException
@@ -83,15 +83,15 @@ class SendPoints(APIView):
         obj, _ = PointDistribution.objects.get_or_create(week=week, is_final=False)
         return obj
 
-
     def post(self, request):
         week = request.data['week']
         if not is_current_week(week, "%Y-%m-%d"):
             raise NotCurrentWeekException()
         point_distribution = self.get_or_create_point_distribution(week)
-        members_set = {get_all_members()}
-        check_point_distribution_includes_all_members(point_distribution, members_set)
-        check_all_point_values_are_valid(point_distribution)
+        members_set = set(get_all_members())
+        given_points = request.data['given_points']
+        check_batch_includes_all_members(given_points, members_set)
+        check_all_point_values_are_valid(given_points)
         serializer = PointDistributionSerializer(point_distribution, data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

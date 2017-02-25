@@ -19,7 +19,7 @@ def get_member(email):
 
 def get_all_members():
     try:
-        return Member.objects.all()
+        return Member.objects.all().values_list('email', flat=True)
     except Member.DoesNotExist:
         raise Http404
 
