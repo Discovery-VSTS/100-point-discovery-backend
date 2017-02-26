@@ -3,6 +3,18 @@
 Zero start build
 --------------------------
 
+Create a local PostgreSQL database with the following parameters:
+
+```javascript
+SERVER_NAME: 'travisci'
+USER: 'postgres'
+PASSWORD: ''
+HOST: 'localhost'
+PORT: [DEFAULT PORT]
+```
+
+_Feel free to edit these parameters in the settings.py file._
+
 Create virtual environment with python 3.5+ as base interpreter
 
 Run `pip install -r requirements.txt`
