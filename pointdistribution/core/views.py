@@ -1,8 +1,9 @@
 from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
-from .serializers import MemberSerializer, GivenPointArchivedSerializer, PointDistributionSerializer
+from .serializers import MemberSerializer, GivenPointArchivedSerializer, PointDistributionSerializer, \
+    GivenPointSerializer
 from .points_operation import validate_provisional_point_distribution, check_batch_includes_all_members, \
     check_all_point_values_are_valid
-from .utils import is_current_week, get_member, filter_final_points_distributions, get_all_members
+from .utils import is_current_week, get_member, filter_final_points_distributions, get_all_members, get_given_point_models
 from .exceptions import NotCurrentWeekException
 
 from django.http import Http404
@@ -114,13 +115,16 @@ class SendPoints(APIView):
         week = request.data['week']
         if not is_current_week(week, "%Y-%m-%d"):
             raise NotCurrentWeekException()
-        point_distribution = self.get_or_create_point_distribution(week)
         given_points = request.data['given_points']
         check_all_point_values_are_valid(given_points)
-        serializer = PointDistributionSerializer(point_distribution, data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        given_points_models = get_given_point_models(given_points)
+        for idx, model in enumerate(given_points_models):
+            serializer = GivenPointSerializer(model, data=given_points[idx])
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+        point_distribution = self.get_or_create_point_distribution(week)
+        serializer = PointDistributionSerializer(point_distribution)
         return Response(serializer.data)
 
 

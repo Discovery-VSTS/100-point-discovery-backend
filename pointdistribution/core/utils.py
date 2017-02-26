@@ -1,5 +1,5 @@
 import datetime
-from .models import Member, PointDistribution
+from .models import Member, PointDistribution, GivenPoint
 
 from django.http import Http404
 
@@ -22,6 +22,21 @@ def get_all_members():
         return Member.objects.all().values_list('email', flat=True)
     except Member.DoesNotExist:
         raise Http404
+
+
+def get_given_point_models(given_points):
+    models = []
+    try:
+        for given_point in given_points:
+            from_member = given_point['from_member']
+            to_member = given_point['to_member']
+            week = given_point['week']
+            model = GivenPoint.objects.get(from_member=from_member, to_member=to_member, week=week)
+            models.append(model)
+    except Member.DoesNotExist:
+        raise Http404
+
+    return models
 
 
 def get_points_distributions(week):
