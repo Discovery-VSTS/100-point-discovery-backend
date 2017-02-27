@@ -25,9 +25,6 @@ class GivenPointSerializer(serializers.ModelSerializer):
 
 
 class GivenPointArchivedSerializer(serializers.ModelSerializer):
-    from_member = MemberSerializer()
-    to_member = MemberSerializer()
-
     class Meta:
         model = GivenPointArchived
         fields = ('from_member', 'to_member', 'points', 'week')
