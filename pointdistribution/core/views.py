@@ -178,8 +178,8 @@ class ValidateProvisionalPointDistribution(APIView):
     def put(self, request):
         week = request.data['week']
         point_distribution = self.get_point_distribution(week)
-        members_list = self.get_all_members()
-        validate_provisional_point_distribution(point_distribution, members_list)
+        members_set = set(self.get_all_members())
+        validate_provisional_point_distribution(point_distribution, members_set)
         point_distribution.is_final = True
         point_distribution.save()
         serializer = PointDistributionSerializer(point_distribution)
