@@ -13,6 +13,12 @@ class MembersMissingException(APIException):
     default_code = 'bad_request'
 
 
+class NotAllMembersGavePointsException(APIException):
+    status_code = 400
+    default_detail = "Not all members gave points to their colleagues"
+    default_code = 'bad_request'
+
+
 class InvalidSumPointsException(APIException):
     status_code = 400
     default_detail = "Sum of points different than 100"
