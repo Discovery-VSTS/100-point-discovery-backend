@@ -27,7 +27,7 @@ class MemberList(generics.ListCreateAPIView):
 
 class MemberPointsHistory(APIView):
     """
-    Get all the given points of a member
+    Get all the given points a user received
 
     Endpoint: **/v1/member/history/<email>**
 
@@ -36,7 +36,7 @@ class MemberPointsHistory(APIView):
     @staticmethod
     def get_given_points_member(member):
         try:
-            return GivenPointArchived.objects.filter(from_member=member)
+            return GivenPointArchived.objects.filter(to_member=member)
         except GivenPointArchived.DoesNotExist:
             raise Http404
 
