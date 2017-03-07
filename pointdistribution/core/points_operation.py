@@ -38,9 +38,10 @@ def validate_provisional_point_distribution(point_distribution, members_set):
         given_point.delete()
     sum_points = 0
     week = point_distribution.week
+    instance_id = point_distribution.instance_id
     for member, points in member_to_point.items():
         new_given_point_entry = GivenPoint(to_member=member, points=points,
-                                           point_distribution=point_distribution, week=week)
+                                           point_distribution=point_distribution, week=week, instance_id=instance_id)
         new_given_point_entry.save()
         sum_points += points
     if sum_points != 100:

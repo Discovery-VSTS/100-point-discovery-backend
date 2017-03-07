@@ -10,16 +10,16 @@ def is_current_week(date, pattern):
     return date == now
 
 
-def get_member(email):
+def get_member(email, instance_id):
     try:
-        return Member.objects.get(email=email)
+        return Member.objects.get(email=email, instance_id=instance_id)
     except Member.DoesNotExist:
         raise Http404
 
 
-def get_all_members():
+def get_all_members(instance_id):
     try:
-        return Member.objects.all().values_list('email', flat=True)
+        return Member.objects.filter(instance_id=instance_id)
     except Member.DoesNotExist:
         raise Http404
 
@@ -46,8 +46,8 @@ def get_points_distributions(week):
         raise Http404
 
 
-def filter_final_points_distributions(is_final=True):
+def filter_final_points_distributions(instance_id, is_final=True):
     try:
-        return PointDistribution.objects.filter(is_final=is_final)
+        return PointDistribution.objects.filter(instance_id=instance_id, is_final=is_final)
     except PointDistribution.DoesNotExist:
         raise Http404

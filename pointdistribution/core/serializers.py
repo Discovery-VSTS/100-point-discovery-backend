@@ -6,13 +6,13 @@ from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
-        fields = ('name', 'email')
+        fields = ('name', 'email', 'instance_id')
 
 
 class GivenPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = GivenPoint
-        fields = ('to_member', 'points', 'from_member', 'week')
+        fields = ('to_member', 'points', 'from_member', 'week', 'instance_id')
 
     def create(self, validated_data):
         given_point = GivenPoint.objects.create(**validated_data)
@@ -27,7 +27,7 @@ class GivenPointSerializer(serializers.ModelSerializer):
 class GivenPointArchivedSerializer(serializers.ModelSerializer):
     class Meta:
         model = GivenPointArchived
-        fields = ('from_member', 'to_member', 'points', 'week')
+        fields = ('from_member', 'to_member', 'points', 'week', 'instance_id')
 
     def create(self, validated_data):
         given_point = GivenPointArchived.objects.create(**validated_data)
@@ -39,7 +39,7 @@ class PointDistributionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PointDistribution
-        fields = ('given_points', 'week', 'is_final')
+        fields = ('given_points', 'week', 'is_final', 'instance_id')
 
     def update(self, instance, validated_data):
         given_points_data = validated_data.pop('given_points')
