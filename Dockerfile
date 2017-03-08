@@ -14,5 +14,7 @@ ENV DEBUG False
 ENV PROD True
 
 EXPOSE 8000
-CMD ["python", "/usr/src/app/pointdistribution/manage.py", "migrate"]
-CMD ["python", "/usr/src/app/pointdistribution/manage.py", "runserver", "0.0.0.0:8000"]
+
+WORKDIR /usr/src/app/pointdistribution
+CMD ["python", "manage.py", "migrate"]
+CMD ["gunicorn", "pointdistribution.wsgi"]
