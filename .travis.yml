@@ -1,15 +1,21 @@
+sudo: required
 language: python
+services:
+- docker
+env:
+  global:
+  - secure: dj0BjZpvJqVkxc9Mcf702iD0nqCvGSffTm+UHVYl0Ij2bhBybL5BRqiBYRrCJLobU3pJjiAB0feYncm+z4d0v2AHHpoc5zdwNGJ1f1EqyFqZbzPeZlUGf4ppynQ1JoM5//tIitAFQ637bhr/Yn8PjHmR0R+56F7hfpHDRTUUAGcWtyDhI7ZJ0MvPt123K6jQJD0cugib/j0t6LtEo+cwpjUkOd/Nftt3BNsbKXYux9x4B8XNU7SXQFNYVQpeZWynAROMWLyR1bHShvn3U4hy5frK8rbApylB8n3fVduOE8HFJ+9x+k+hM/w8wfk8h2MBvL7LZUThB9IpGyoK41R91N+0ltPcx4tVXD/FG5B2TI/P8xpFtY6tVDpoZQDkMkrZKOJsdb5JLbZthY8leqoYkPczf4KdP0Ky3Y0GHtdYAoEnSAh5RpeyEj0/ZxHA5160wZuoCDFZ1H21/DO6MRb6k4nNLG39AsTJ0f6MsnQRqAYAkw/WjFaSdlSWBEFd/s9WKVqYPcGAT3Tz6dU27ot9jh1DV1Mb7D5fg+fnugt5J0zBKkSUa+Ixaa6BdfJFA6Em7IvyAYLzfSawVxDCAu1IX9h04jniG/ayjzzha5L9MkE3FUlOamQF/EchQlpIQQSn+Rtemb4Gho+FqJu96Gz3odtA0T86Hu6u4sTcvDkEZ5M=
+  - secure: plgVKWQRO2LZk7QDl5pQ0jjdg/m+LVOSApIFaAIC4UpE+SIFnhEsvL5TbPfdBgKTYZxURK518XSTUb+UPb44ky4j7NGMkU4dTLpgLacNHCvLMqYpnd56lbgahspOMJcQft3OC41dXT8H1iSoEld7VbkBUQyZseFOKN9lMZ30WdqBCsaMk0CtiqEAa3zOE7B09ky7vCpwG+nuWbY0GQS2HGTYtBZvDXYYgZGP9iEAbbfsjL4or6ufIR+yz71pF4VcvHgJjlSqWUcQP0QYVGgNmskTVIXqc8vxy35igmiON/ISScXDj3dKAoV0FOTE0ZyPbIkB0RGmGDydJmt1JvaYJ3bxhVMkAeHFIzXDK6WViC2e3zjYn5suBZBErMEWX+y3KuX9qDhUHm/bGomnAM9kGGgK0e/A6Fk6wNbIExZNpD0AUWhD6UHsbQI+4crMfbyOwwrJM32Fh4c5YIUwZcoY2w3UWINMZ+Jhvz2u2XKbROZr+6lG0KbccnJxV46WtX1C5HLO2Hfg9MX4uw5F6QXPMWyE55pDf+HAIN+Bia5CHR3HNMnTyJRVg2DpyVnCYxa1/J5wJRTO+MBmb4wEEyS/YmEgfF5lfq/K3+2pFjdEFwJU2YKzaKg1vAtewb7Xur10WLAN1TQ/YljDBFrS+4e5LQmXhDS2BjxlLriBjl0diXw=
+  - secure: Pz7OHF5qXKZQwLXP7Q7AD+YumKF2oKNBamEzY0KtV8uCoDX1QXVX6AlANCMUwKmeca2/e0fJ5R3RWm0v39xuIPbJ70YK1pWbWw+XQdB6XzY0uW+Z8yiGwZXNTDuD4E1gXQzfAHB+l5epmOPusG2A4zUyHOMokO/pJ1wym9TE5lHsZFHFoAEUs5+Y8LDf1x4W9R65cF71wJ5pF+WuJTf5VuoaybULkD2YZfVyxR5wNdUuXqtOYSOFWnXF/4IhLuvmfovO7qVwtjd1aGjf9jBE8rqnjNd0M6C+CDko6uVx95lmKWPKB5ttdmwsoKZfj76T3FCSPQmvGY2nrPhFPzQY/hV02bYSUOh2USc2Y7wZuklxKCIWoUArLGb1VXgTI/4DufqZMWGVWVNuMlfnNkT0eorcCZM/Zs/qrTE81fSnC88L71UBTsilVnUvILaHnfbXVCEce61JksVQAbwQJn1XQajLZEpBHjtiH48rQMMHyIr2MqtxBXWnl1qZWtIQtZnWjp4Q2+qltN2crVhut5P54PohMdbKCwdMPuyinTWrUEESVa00y94tXHcnfj6Dmb5qWbvcN/BvOgtfFxsCI28L394r9FoBgvQbDLLynl/h0b8UARU+I/gc4RfkGYntOAepWsD7uNrUinXs0jvPs7unqCPQmx6N3NXLEOUTQKkKinI=
 python:
-  - "3.5"
+- '3.5'
 install:
-  - pip install -r requirements.txt
+- pip install -r requirements.txt
 script:
-  - cd pointdistribution
-  - python manage.py test
-deploy:
-  provider: azure_web_apps
-  username: "deployment-100"
-  password: "100-points"
-  site: "100-point-discovery-backend"
-  verbose: true
-  on: deploy
+- cd pointdistribution
+- python manage.py test
+- cd ..
+after_success:
+- test $TRAVIS_BRANCH == "master" && docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
+  $DOCKER_URL & docker build -t $DOCKER_URL/settingmanage:$APP_MAJOR_VERSION.$APP_MINOR_VERSION.$TRAVIS_BUILD_NUMBER
+  . && docker push $DOCKER_URL/100point:$APP_MAJOR_VERSION.$APP_MINOR_VERSION.$TRAVIS_BUILD_NUMBER
