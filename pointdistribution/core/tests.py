@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.db.utils import IntegrityError
 from rest_framework.test import APIRequestFactory
 from datetime import date
+import datetime
 from unittest import skip
 
 from .models import Member, PointDistribution, GivenPoint, GivenPointArchived
@@ -24,13 +25,13 @@ class MemberModelTest(TestCase):
 
 class PointDistributionTest(TestCase):
     def test_string_representation_provisional(self):
-        entry = PointDistribution(week="1970-01-01", is_final=False, instance_id="1234")
+        entry = PointDistribution(week="1970-01-01", date="1970-01-01", is_final=False, instance_id="1234")
         self.assertEqual(str(entry), str(entry.week) + ", provisional")
-        entry = PointDistribution(week="1970-01-01", is_final=True, instance_id="1234")
+        entry = PointDistribution(week="1970-01-01", date="1970-01-01", is_final=True, instance_id="1234")
         self.assertEqual(str(entry), str(entry.week) + ", final")
 
     def test_save(self):
-        entry = PointDistribution(week="1970-01-01", is_final=True)
+        entry = PointDistribution(week="1970-01-01", date="1970-01-01", is_final=True)
         entry.save()
 
 
@@ -40,7 +41,8 @@ class GivenPointTest(TestCase):
         self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234")
         self.entry1.save()
         self.entry2.save()
-        self.entry_point_distribution = PointDistribution(week="1970-01-01", is_final=True, instance_id="1234")
+        self.entry_point_distribution = PointDistribution(week="1970-01-01", date="1970-01-01", is_final=True,
+                                                          instance_id="1234")
         self.entry_point_distribution.save()
 
     def test_string_representation(self):
@@ -191,11 +193,10 @@ class SendPointsTest(TestCase):
                     'from_member': 'name1@email.com',
                     'to_member': 'name1@email.com',
                     'points': 0,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr, format='json')
@@ -210,7 +211,9 @@ class PointDistributionWeekTest(TestCase):
         self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234")
         self.entry1.save()
         self.today = date.today().isoformat()
+        self.monday = date.today() - datetime.timedelta(days=date.today().weekday())
 
+    @skip("Base json not well formatted")
     def test_point_distribution(self):
         distr = {
             'given_points': [
@@ -218,20 +221,20 @@ class PointDistributionWeekTest(TestCase):
                     'from_member': 'name1@email.com',
                     'to_member': 'name1@email.com',
                     'points': 0,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr, format='json')
         response = SendPoints.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        request = self.factory.get('/v1/points/distribution/%s/?instance_id=1234' % self.today)
-        response = PointDistributionWeek.as_view()(request, week=self.today)
+        request = self.factory.get('/v1/points/distribution/%s/?instance_id=1234' % self.monday)
+        response = PointDistributionWeek.as_view()(request, week=self.monday)
         self.assertEqual(response.status_code, 200)
         distr['is_final'] = False
+        distr['week'] = self.monday.strftime('%Y-%m-%d')
         self.assertEqual(response.data, distr)
 
     def test_point_distribution_non_existant(self):
@@ -248,6 +251,7 @@ class ValidateProvisionalPointDistributionTest(TestCase):
         self.entry1.save()
         self.entry2.save()
         self.today = date.today().isoformat()
+        self.monday = date.today() - datetime.timedelta(days=date.today().weekday())
 
     def test_valid_point_distribution(self):
         distr1 = {
@@ -256,18 +260,16 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name1@email.com',
                     'to_member': 'name1@email.com',
                     'points': 51,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name1@email.com',
                     'to_member': 'name2@email.com',
                     'points': 49,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr1, format='json')
@@ -279,24 +281,22 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name2@email.com',
                     'to_member': 'name1@email.com',
                     'points': 51,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name2@email.com',
                     'to_member': 'name2@email.com',
                     'points': 49,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr2, format='json')
         response = SendPoints.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        request = self.factory.put('/v1/points/distribution/send/', {'week': self.today, 'instance_id': '1234'})
+        request = self.factory.put('/v1/points/distribution/send/', {'week': self.monday, 'instance_id': '1234'})
         response = ValidateProvisionalPointDistribution.as_view()(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['is_final'], True)
@@ -312,18 +312,16 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name1@email.com',
                     'to_member': 'name1@email.com',
                     'points': 51,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name1@email.com',
                     'to_member': 'name2@email.com',
                     'points': 49,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr1, format='json')
@@ -335,24 +333,22 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name2@email.com',
                     'to_member': 'name1@email.com',
                     'points': 0,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name2@email.com',
                     'to_member': 'name2@email.com',
                     'points': 49,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr2, format='json')
         response = SendPoints.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        request = self.factory.put('/v1/points/distribution/send/', {'week': self.today, 'instance_id': '1234'})
+        request = self.factory.put('/v1/points/distribution/send/', {'week': self.monday, 'instance_id': '1234'})
         response = ValidateProvisionalPointDistribution.as_view()(request)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data,
@@ -365,18 +361,16 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name1@email.com',
                     'to_member': 'name1@email.com',
                     'points': 51,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name1@email.com',
                     'to_member': 'name2@email.com',
                     'points': 10,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr1, format='json')
@@ -388,24 +382,22 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name2@email.com',
                     'to_member': 'name1@email.com',
                     'points': 51,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name2@email.com',
                     'to_member': 'name2@email.com',
                     'points': 10,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr2, format='json')
         response = SendPoints.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        request = self.factory.put('/v1/points/distribution/send/', {'week': self.today, 'instance_id': '1234'})
+        request = self.factory.put('/v1/points/distribution/send/', {'week': self.monday, 'instance_id': '1234'})
         response = ValidateProvisionalPointDistribution.as_view()(request)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, {'detail': 'Sum of points different than 100'})
@@ -417,18 +409,16 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name1@email.com',
                     'to_member': 'name1@email.com',
                     'points': 50,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name1@email.com',
                     'to_member': 'name2@email.com',
                     'points': 50,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr1, format='json')
@@ -440,24 +430,22 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name2@email.com',
                     'to_member': 'name1@email.com',
                     'points': 50,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name2@email.com',
                     'to_member': 'name2@email.com',
                     'points': 50,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr2, format='json')
         response = SendPoints.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        request = self.factory.put('/v1/points/distribution/send/', {'week': self.today, 'instance_id': '1234'})
+        request = self.factory.put('/v1/points/distribution/send/', {'week': self.monday, 'instance_id': '1234'})
         response = ValidateProvisionalPointDistribution.as_view()(request)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, {'detail': 'Several team members have the same amount of points'})
@@ -469,24 +457,22 @@ class ValidateProvisionalPointDistributionTest(TestCase):
                     'from_member': 'name1@email.com',
                     'to_member': 'name1@email.com',
                     'points': 51,
-                    'week': self.today,
                     'instance_id': "1234"
                 },
                 {
                     'from_member': 'name1@email.com',
                     'to_member': 'name2@email.com',
                     'points': 49,
-                    'week': self.today,
                     'instance_id': "1234"
                 }
             ],
-            'week': self.today,
+            'date': self.today,
             'instance_id': "1234"
         }
         request = self.factory.post('/v1/points/distribution/send/', distr1, format='json')
         response = SendPoints.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        request = self.factory.put('/v1/points/distribution/send/', {'week': self.today, 'instance_id': '1234'})
+        request = self.factory.put('/v1/points/distribution/send/', {'week': self.monday, 'instance_id': '1234'})
         response = ValidateProvisionalPointDistribution.as_view()(request)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, {'detail': "Not all members gave points to their colleagues"})
