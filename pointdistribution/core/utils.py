@@ -3,11 +3,20 @@ from .models import Member, PointDistribution, GivenPoint
 
 from django.http import Http404
 
+DATE_PATTERN = '%Y-%m-%d'
+WEEK_PATTERN = '%Y-%W'
+
 
 def is_current_week(date, pattern):
     date = datetime.datetime.strptime(date, pattern).isocalendar()[:2]
     now = datetime.datetime.now().isocalendar()[:2]
     return date == now
+
+
+def get_monday_from_date(date, pattern):
+    date_obj = datetime.datetime.strptime(date, pattern)
+    monday = date_obj - datetime.timedelta(days=date_obj.weekday())
+    return monday.strftime(pattern)
 
 
 def get_member(email, instance_id):
@@ -24,13 +33,12 @@ def get_all_members(instance_id):
         raise Http404
 
 
-def get_given_point_models(given_points):
+def get_given_point_models(given_points, week):
     models = []
     try:
         for given_point in given_points:
             from_member = given_point['from_member']
             to_member = given_point['to_member']
-            week = given_point['week']
             model = GivenPoint.objects.get(from_member=from_member, to_member=to_member, week=week)
             models.append(model)
     except Member.DoesNotExist:

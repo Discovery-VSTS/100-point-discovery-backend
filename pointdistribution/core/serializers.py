@@ -39,7 +39,7 @@ class PointDistributionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PointDistribution
-        fields = ('given_points', 'week', 'is_final', 'instance_id')
+        fields = ('given_points', 'week', 'date', 'is_final', 'instance_id')
 
     def update(self, instance, validated_data):
         given_points_data = validated_data.pop('given_points')
