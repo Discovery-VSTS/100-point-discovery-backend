@@ -15,6 +15,7 @@ class Member(models.Model):
 
 class PointDistribution(models.Model):
     week = models.DateField(primary_key=True)
+    date = models.DateField()
     is_final = models.BooleanField()
     instance_id = models.CharField(max_length=255)
 
