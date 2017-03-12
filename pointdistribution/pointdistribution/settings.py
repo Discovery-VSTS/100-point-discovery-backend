@@ -29,9 +29,9 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = [
-    "localhost",
     "127.0.0.1",
-    "138.68.147.100",
+    ".visualstudio.com",
+    "discovery-100p.azurewebsites.net",
 ]
 
 # Logging configuration
