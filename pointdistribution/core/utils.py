@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 from .models import Member, PointDistribution, GivenPoint
 
 from django.http import Http404
@@ -33,12 +34,12 @@ def get_all_members(instance_id):
         raise Http404
 
 
-def get_given_point_models(given_points, week):
+def get_given_point_models(given_points, week, instance_id):
     models = []
     try:
         for given_point in given_points:
-            from_member = given_point['from_member']
-            to_member = given_point['to_member']
+            from_member = concatenate_and_hash(given_point['from_member'], instance_id)
+            to_member = concatenate_and_hash(given_point['to_member'], instance_id)
             model = GivenPoint.objects.get(from_member=from_member, to_member=to_member, week=week)
             models.append(model)
     except Member.DoesNotExist:
@@ -59,3 +60,9 @@ def filter_final_points_distributions(instance_id, is_final=True):
         return PointDistribution.objects.filter(instance_id=instance_id, is_final=is_final)
     except PointDistribution.DoesNotExist:
         raise Http404
+
+
+def concatenate_and_hash(field1, field2):
+    concat_str = '%s%s' % (field1, field2)
+    hashed_obj = hashlib.md5(concat_str.encode('utf-8'))
+    return hashed_obj.hexdigest()
