@@ -2,19 +2,21 @@ from django.db import models
 
 
 class Member(models.Model):
+    identifier = models.CharField(primary_key=True, max_length=255)
     name = models.CharField(max_length=30)
-    email = models.EmailField(primary_key=True, max_length=30)
+    email = models.EmailField(max_length=30)
     instance_id = models.CharField(max_length=255)
 
     class Meta:
         unique_together = ('email', 'instance_id')
 
     def __str__(self):
-        return self.email.__str__()
+        return self.email.__str__() + "/%s" % (self.instance_id.__str__())
 
 
 class PointDistribution(models.Model):
-    week = models.DateField(primary_key=True)
+    identifier = models.CharField(primary_key=True, max_length=255)
+    week = models.DateField()
     date = models.DateField()
     is_final = models.BooleanField()
     instance_id = models.CharField(max_length=255)

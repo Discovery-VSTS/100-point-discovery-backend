@@ -17,7 +17,7 @@ class MemberModelTest(TestCase):
         self.entry = Member(name="My entry title", instance_id="1234")
 
     def test_string_representation(self):
-        self.assertEqual(str(self.entry), self.entry.email)
+        self.assertEqual(str(self.entry), self.entry.email + "/" + self.entry.instance_id)
 
     def test_save(self):
         self.entry.save()
@@ -37,8 +37,10 @@ class PointDistributionTest(TestCase):
 
 class GivenPointTest(TestCase):
     def setUp(self):
-        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234")
-        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234")
+        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234",
+                             identifier="82e37e019472168a59a6d959936e6aa7")
+        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234",
+                             identifier="67917aabb3bf89714230616525ea5632")
         self.entry1.save()
         self.entry2.save()
         self.entry_point_distribution = PointDistribution(week="1970-01-01", date="1970-01-01", is_final=True,
@@ -74,21 +76,26 @@ class MemberListTest(TestCase):
         self.factory = APIRequestFactory()
 
     def test_full_history(self):
-        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234")
-        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234")
+        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234",
+                             identifier="82e37e019472168a59a6d959936e6aa7")
+        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234",
+                             identifier="67917aabb3bf89714230616525ea5632")
         self.entry1.save()
         self.entry2.save()
         request = self.factory.get('/v1/members/?instance_id=1234')
         response = MemberList.as_view()(request)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, [{"name": "Name1", "email": "name1@email.com", "instance_id": "1234"},
-                                         {"name": "Name2", "email": "name2@email.com", "instance_id": "1234"}])
+        self.assertEqual(response.data, [{"name": "Name1", "email": "name1@email.com", "instance_id": "1234",
+                                          "identifier": "82e37e019472168a59a6d959936e6aa7"},
+                                         {"name": "Name2", "email": "name2@email.com", "instance_id": "1234",
+                                          "identifier": "67917aabb3bf89714230616525ea5632"}])
 
     def test_create_member(self):
         request = self.factory.post('/v1/members/', {"name": "Name", "email": "name@email.com", "instance_id": "1234"})
         response = MemberList.as_view()(request)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data, {"name": "Name", "email": "name@email.com", "instance_id": "1234"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"name": "Name", "email": "name@email.com", "instance_id": "1234",
+                                         "identifier": "70eef677b6c2f6e45bb577cf362b069f"})
 
 
 class PointDistributionHistoryTest(TestCase):
@@ -105,8 +112,10 @@ class PointDistributionHistoryTest(TestCase):
 class SendPointsTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234")
-        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234")
+        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234",
+                             identifier="82e37e019472168a59a6d959936e6aa7")
+        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234",
+                             identifier="67917aabb3bf89714230616525ea5632")
         self.entry1.save()
         self.entry2.save()
         self.today = date.today().isoformat()
@@ -208,7 +217,8 @@ class SendPointsTest(TestCase):
 class PointDistributionWeekTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234")
+        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234",
+                             identifier="82e37e019472168a59a6d959936e6aa7")
         self.entry1.save()
         self.today = date.today().isoformat()
         self.monday = date.today() - datetime.timedelta(days=date.today().weekday())
@@ -246,8 +256,10 @@ class PointDistributionWeekTest(TestCase):
 class ValidateProvisionalPointDistributionTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234")
-        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234")
+        self.entry1 = Member(name="Name1", email="name1@email.com", instance_id="1234",
+                             identifier="82e37e019472168a59a6d959936e6aa7")
+        self.entry2 = Member(name="Name2", email="name2@email.com", instance_id="1234",
+                             identifier="67917aabb3bf89714230616525ea5632")
         self.entry1.save()
         self.entry2.save()
         self.today = date.today().isoformat()
