@@ -16,8 +16,8 @@ script:
 - python manage.py test
 - cd ..
 after_success:
-- TRAVIS=false PROD=true python pointdistribution/manage.py makemigrations
-- TRAVIS=false PROD=true python pointdistribution/manage.py manage
+- TRAVIS=False PROD=True python pointdistribution/manage.py makemigrations
+- TRAVIS=False PROD=True python pointdistribution/manage.py manage
 - test $TRAVIS_BRANCH == "master" && docker login -u=discoveryregistry -p=/Qgk0+YPweZLKFiO+olW1/LNwCpl38Az
   discoveryregistry-on.azurecr.io & docker build -t discoveryregistry-on.azurecr.io/100point:$APP_MAJOR_VERSION.$APP_MINOR_VERSION.$TRAVIS_BUILD_NUMBER
   . && docker push discoveryregistry-on.azurecr.io/100point:$APP_MAJOR_VERSION.$APP_MINOR_VERSION.$TRAVIS_BUILD_NUMBER
