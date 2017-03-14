@@ -32,7 +32,7 @@ CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
-    ".visualstudio.com",
+    "visualstudio.com",
     "discovery-100p.azurewebsites.net",
 ]
 
