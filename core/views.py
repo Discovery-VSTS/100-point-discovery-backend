@@ -9,14 +9,12 @@ from .exceptions import NotCurrentWeekException
 
 from django.http import Http404
 
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from pointdistribution.pointdistribution.settings import VSTS_BASE_URL, SETTING_MANAGE_BASE_URL
-from pointdistribution.core.utils import concatenate_and_hash
+from pointdistribution.settings import VSTS_BASE_URL, SETTING_MANAGE_BASE_URL
 
-import hashlib
 import requests
 import logging
 

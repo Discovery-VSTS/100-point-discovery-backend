@@ -12,9 +12,7 @@ python:
 install:
 - pip install -r requirements.txt
 script:
-- cd pointdistribution
 - python manage.py test
-- cd ..
 after_success:
 - TRAVIS=False PROD=True python pointdistribution/manage.py makemigrations
 - TRAVIS=False PROD=True python pointdistribution/manage.py migrate
