@@ -39,7 +39,7 @@ Documentation
 
 This is the list of endpoints:
 
-![List of endpoints](http://i.imgur.com/neueKnX.png)
+![List of endpoints](http://i.imgur.com/YPFEKu7.png)
 
 This list can be accessed through `127.0.0.1:8000/docs`
 
