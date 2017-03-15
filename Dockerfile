@@ -12,5 +12,5 @@ COPY . .
 
 EXPOSE 8000
 
-WORKDIR /usr/src/app/pointdistribution
+WORKDIR /usr/src/app/
 CMD ["gunicorn", "pointdistribution.wsgi", "-b", "0.0.0.0:8000"]
