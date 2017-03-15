@@ -8,12 +8,21 @@ from .utils import is_current_week, get_member, filter_final_points_distribution
 from .exceptions import NotCurrentWeekException
 
 from django.http import Http404
+from django.db.utils import IntegrityError
 
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-import hashlib
+from pointdistribution.settings import VSTS_BASE_URL, SETTING_MANAGE_BASE_URL
+
+import requests
+import logging
+
+
+def construct_url_for_project(instance_name):
+    request_url = VSTS_BASE_URL.format(instance_name)
+    return request_url
 
 
 class MemberList(APIView):
@@ -26,7 +35,61 @@ class MemberList(APIView):
     """
     def get(self, request):
         instance_id = request.GET.get('instance_id', '')
+        vsts_instance = request.GET.get('instance_name', '')
+        user_email = request.GET.get('user_email', '')
+
+        logging.info("Received {} {} {}".format(instance_id, vsts_instance, user_email))
+
+        params = {'instance_id': instance_id, 'user_email': user_email}
+        vsts_token_request = requests.get(SETTING_MANAGE_BASE_URL + "v1/tokenstorage", params=params)
+        vsts_token = vsts_token_request.json()['vsts_token']
+        email_account_name = user_email.split('@')
+
+        vsts_request_url = construct_url_for_project(vsts_instance)
+
+        r = requests.get(vsts_request_url, auth=(email_account_name, vsts_token))
+
+        projects = r.json()['value']
+
+        for project in projects:
+            # Get all team members
+            project_id = project['id']
+            r = requests.get('https://{}.visualstudio.com/DefaultCollection/_apis/projects/{}/teams'.format(vsts_instance,
+                                                                                                      project_id),
+                             auth=(email_account_name, vsts_token))
+            team_id = r.json()['value'][0]['id']
+
+            team_member_data = requests.get('https://{}.visualstudio.com/DefaultCollection/_apis/projects/{}/teams/{}/'
+                                            'members?api_version=1.0'.format(vsts_instance, project_id, team_id),
+                                            auth=(email_account_name, vsts_token))
+            team_members = team_member_data.json()['value']
+
+            for team_member in team_members:
+                email = team_member['uniqueName']
+                name = team_member['displayName']
+                identifier = concatenate_and_hash(email, instance_id)
+
+                logging.debug('email={} name={} identifier={}'.format(email, name, identifier))
+
+                try:
+                    logging.info("Create member entry")
+                    Member.objects.create(email=email, name=name, instance_id=instance_id, identifier=identifier)
+
+                except Member.DoesNotExist:
+                    logging.info("Could not find member, creating new member with the following information;"
+                                 "name={}, email{}, instance_id={}, identifier={}".format(name, email,
+                                                                                          instance_id, identifier))
+                    Member.objects.create(email=email, name=name, instance_id=instance_id, identifier=identifier)
+
+                except IntegrityError as e:
+                    logging.warn(e)
+
+                except Exception as e:
+                    logging.error("Something unexpected happened during the member filter", e)
+
+        # Now fetch all the members and return them
         members = Member.objects.filter(instance_id=instance_id)
+        logging.debug('Members=', members)
         serializer = MemberSerializer(members, many=True)
         return Response(serializer.data)
 
