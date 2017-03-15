@@ -13,6 +13,7 @@ from django.db.utils import IntegrityError
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 from pointdistribution.settings import VSTS_BASE_URL, SETTING_MANAGE_BASE_URL
 
@@ -282,3 +283,14 @@ class ValidateProvisionalPointDistribution(APIView):
         point_distribution.save()
         serializer = PointDistributionSerializer(point_distribution)
         return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def reset_database(request):
+    members = Member.objects.all()
+    Member.objects.all().delete()
+    GivenPoint.objects.all().delete()
+    PointDistribution.objects.all().delete()
+    GivenPointArchived.objects.all().delete()
+
+    return Response(data="Clear database from database", status=status.HTTP_200_OK)
