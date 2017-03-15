@@ -222,4 +222,4 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
 
 VSTS_BASE_URL = 'https://{}.visualstudio.com/DefaultCollection/_apis/projects?api-version=1.0'
-SETTING_MANAGE_BASE_URL = os.getenv('SETTING_MANAGE_BASE_URL', '')
+SETTING_MANAGE_BASE_URL = os.getenv('SETTING_MANAGE_BASE_URL', 'https://discovery-settingmanagement.azurewebsites.net/')
