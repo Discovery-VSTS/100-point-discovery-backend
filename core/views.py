@@ -262,6 +262,34 @@ class SendPoints(APIView):
         for given_point in serializer.data['given_points']:
             given_point['to_member'] = Member.objects.get(identifier=given_point['to_member']).email
             given_point['from_member'] = Member.objects.get(identifier=given_point['from_member']).email
+
+        # Going through to send message to slackbot
+        for given_point in request['given_points']:
+            from_member = given_point['from_member']
+            to_member = given_point['to_member']
+            instance_id = given_point['instance_id']
+            point = given_point['points']
+
+            try:
+                from_member_real_name = Member.objects.filter(instance_id=instance_id, email=from_member)
+
+            except Member.DoesNotExist:
+                from_member_real_name = from_member
+
+            try:
+                to_member_real_name = Member.objects.filter(instance_id=instance_id, email=to_member)
+
+            except Member.DoesNotExist:
+                to_member_real_name = to_member
+
+            msg = '{} gave {} {} points'.format(from_member_real_name, to_member_real_name, point)
+            data = {'instance_id': instance_id, 'user_email': from_member, 'msg': msg}
+            slackbot_response = requests.post(SLACKBOT_URL + 'v1/api/send/', data=data)
+            if slackbot_response.status_code == 202:
+                logging.info("Successfully submitted to slack channel")
+            else:
+                logging.warn("Failed to submit messages to slack channel")
+
         return Response(serializer.data)
 
 
