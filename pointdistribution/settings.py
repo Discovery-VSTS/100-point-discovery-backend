@@ -36,6 +36,8 @@ ALLOWED_HOSTS = [
     "discovery-100p.azurewebsites.net",
 ]
 
+SLACKBOT_URL = os.getenv('SLACK_BOT_URL', 'https://discovery-slackbot.azurewebsites.net/')
+
 # Logging configuration
 LOGGING = {
     'version': 1,
