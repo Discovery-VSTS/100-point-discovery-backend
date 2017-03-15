@@ -17,6 +17,11 @@ from rest_framework.decorators import api_view
 
 from pointdistribution.settings import VSTS_BASE_URL, SETTING_MANAGE_BASE_URL, SLACKBOT_URL
 
+import hashlib
+import requests
+import logging
+
+
 import requests
 import logging
 
