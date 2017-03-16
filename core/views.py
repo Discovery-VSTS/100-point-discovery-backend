@@ -232,7 +232,7 @@ class SendPoints(APIView):
             msg = '{} gave {} {} points'.format(from_member_real_name, to_member_real_name, point)
             logging.info("Created message={}".format(msg))
             data = {'instance_id': instance_id, 'user_email': from_member, 'msg': msg}
-            logging.info(data)
+            print(data)
             slackbot_response = requests.post(SLACKBOT_URL + 'v1/api/send/', data=data)
             if slackbot_response.status_code == 202:
                 logging.info("Successfully submitted to slack channel")
