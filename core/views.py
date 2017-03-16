@@ -211,7 +211,7 @@ class SendPoints(APIView):
             given_point['from_member'] = Member.objects.get(identifier=given_point['from_member']).email
 
         # Going through to send message to slackbot
-        for given_point in request.data['given_points']:
+        for given_point in serializer.data['given_points']:
             from_member = given_point['from_member']
             to_member = given_point['to_member']
             instance_id = given_point['instance_id']
