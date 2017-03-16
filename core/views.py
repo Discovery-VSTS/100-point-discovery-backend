@@ -147,7 +147,7 @@ class SendPoints(APIView):
     """
     Send points to team members. Date must be the current week
 
-    Endpoint: **/v1/point/distribution/send**
+    Endpoint: **/v1/points/distribution/send**
 
     Methods: *POST PUT*
 
@@ -181,6 +181,7 @@ class SendPoints(APIView):
         return obj
 
     def post(self, request):
+        print(request.data)
         date = request.data['date']
         instance_id = request.data['instance_id']
         if not is_current_week(date, DATE_PATTERN):
@@ -193,44 +194,50 @@ class SendPoints(APIView):
         check_batch_includes_all_members(given_points, members_set)
         check_all_point_values_are_valid(given_points)
         request.data['week'] = week
+
         for given_point in request.data['given_points']:
             given_point['week'] = week
             given_point['to_member'] = concatenate_and_hash(given_point['to_member'], instance_id)
             given_point['from_member'] = concatenate_and_hash(given_point['from_member'], instance_id)
+
         serializer = PointDistributionSerializer(point_distribution, data=request.data)
+
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
+
         for given_point in serializer.data['given_points']:
             given_point['to_member'] = Member.objects.get(identifier=given_point['to_member']).email
             given_point['from_member'] = Member.objects.get(identifier=given_point['from_member']).email
 
         # Going through to send message to slackbot
-        for given_point in request.data['given_points']:
+        for given_point in serializer.data['given_points']:
             from_member = given_point['from_member']
             to_member = given_point['to_member']
             instance_id = given_point['instance_id']
             point = given_point['points']
 
             try:
-                from_member_real_name = Member.objects.filter(instance_id=instance_id, email=from_member)
+                from_member_real_name = Member.objects.get(instance_id=instance_id, email=from_member).name
 
             except Member.DoesNotExist:
                 from_member_real_name = from_member
 
             try:
-                to_member_real_name = Member.objects.filter(instance_id=instance_id, email=to_member)
+                to_member_real_name = Member.objects.get(instance_id=instance_id, email=to_member).name
 
             except Member.DoesNotExist:
                 to_member_real_name = to_member
 
             msg = '{} gave {} {} points'.format(from_member_real_name, to_member_real_name, point)
+            logging.info("Created message={}".format(msg))
             data = {'instance_id': instance_id, 'user_email': from_member, 'msg': msg}
-            slackbot_response = requests.post(SLACKBOT_URL + 'v1/api/send/', data=data)
+            logging.info(data)
+            slackbot_response = requests.post(SLACKBOT_URL + 'v1/api/send/', json=data)
             if slackbot_response.status_code == 202:
                 logging.info("Successfully submitted to slack channel")
             else:
-                logging.warn("Failed to submit messages to slack channel")
+                logging.warn("Failed to submit messages to slack channel, status_code={}".format(slackbot_response.status_code))
 
         return Response(serializer.data)
 
@@ -279,7 +286,7 @@ class SendPoints(APIView):
 
             msg = '{} gave {} {} points'.format(from_member_real_name, to_member_real_name, point)
             data = {'instance_id': instance_id, 'user_email': from_member, 'msg': msg}
-            slackbot_response = requests.post(SLACKBOT_URL + 'v1/api/send/', data=data)
+            slackbot_response = requests.post(SLACKBOT_URL + 'v1/api/send/', json=data)
             if slackbot_response.status_code == 202:
                 logging.info("Successfully submitted to slack channel")
             else:
