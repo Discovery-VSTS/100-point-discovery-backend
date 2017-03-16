@@ -9,6 +9,7 @@ from .exceptions import NotCurrentWeekException
 
 from django.http import Http404
 from django.db.utils import IntegrityError
+from django.db.models import Sum
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -126,6 +127,31 @@ class MemberPointsHistory(APIView):
         given_points = self.get_given_points_member(member, instance_id)
         serializer = GivenPointArchivedSerializer(given_points, many=True)
         return Response(serializer.data)
+
+
+class GivenPointsTeamTotal(APIView):
+    """
+    Get all the past point distributions
+
+    Endpoint: **/v1/team/points/?instance_id=1234**
+
+    Methods: *GET*
+    """
+    @staticmethod
+    def get_aggregate(instance_id, members_list):
+        members_to_total_points = {}
+        for member in members_list:
+            identifier = member.identifier
+            name = member.name
+            sum_points = GivenPointArchived.objects.filter(to_member=identifier, instance_id=instance_id)\
+                .aggregate(sum=Sum('points'))
+            members_to_total_points[name] = (sum_points['sum'] if sum_points['sum'] is not None else 0)
+        return members_to_total_points
+
+    def get(self, request):
+        instance_id = request.GET.get('instance_id', '')
+        members_list = get_all_members(instance_id)
+        return Response(self.get_aggregate(instance_id, members_list))
 
 
 class PointDistributionHistory(APIView):
