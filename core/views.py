@@ -218,13 +218,13 @@ class SendPoints(APIView):
             point = given_point['points']
 
             try:
-                from_member_real_name = Member.objects.filter(instance_id=instance_id, email=from_member).name
+                from_member_real_name = Member.objects.get(instance_id=instance_id, email=from_member).name
 
             except Member.DoesNotExist:
                 from_member_real_name = from_member
 
             try:
-                to_member_real_name = Member.objects.filter(instance_id=instance_id, email=to_member).name
+                to_member_real_name = Member.objects.get(instance_id=instance_id, email=to_member).name
 
             except Member.DoesNotExist:
                 to_member_real_name = to_member
