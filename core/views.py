@@ -39,7 +39,7 @@ class TeamList(APIView):
         if instance_id is None or instance_id == '':
             # Return all teams
             teams = Team.objects.all()
-            teams_list = {}
+            teams_list = dict()
 
             for team in teams:
                 instance_id = team.instance_id
@@ -48,10 +48,14 @@ class TeamList(APIView):
                 # TODO: Need to optimize this in the future
                 members = Member.objects.all().filter(instance_id=instance_id)
                 members_serializer = MemberSerializer(members, many=True)
-                teams_list[instance_id] = {
-                    'instance_name': instance_name,
-                    'members': members_serializer.data
-                }
+
+                if instance_id == '':
+                    continue
+                else:
+                    teams_list[instance_id] = {
+                        'instance_name': instance_name,
+                        'members': members_serializer.data
+                    }
 
             return Response(data=json.dumps(teams_list), status=status.HTTP_200_OK)
         elif instance_id is not None and instance_id != '':
