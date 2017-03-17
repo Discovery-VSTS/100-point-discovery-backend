@@ -12,6 +12,9 @@ python:
 install:
 - pip install -r requirements.txt
 script:
+- TRAVIS=False PROD=False python pointdistribution/manage.py collectstatic
+- TRAVIS=False PROD=False python pointdistribution/manage.py makemigrations
+- TRAVIS=False PROD=False python pointdistribution/manage.py migrate
 - python manage.py test
 after_success:
 - TRAVIS=False PROD=True python pointdistribution/manage.py collectstatic
