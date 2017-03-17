@@ -12,11 +12,13 @@ python:
 install:
 - pip install -r requirements.txt
 script:
+- TRAVIS=False PROD=False python manage.py makemigrations
+- TRAVIS=False PROD=False python manage.py migrate
 - python manage.py test
 after_success:
-- TRAVIS=False PROD=True python pointdistribution/manage.py collectstatic
-- TRAVIS=False PROD=True python pointdistribution/manage.py makemigrations
-- TRAVIS=False PROD=True python pointdistribution/manage.py migrate
+- TRAVIS=False PROD=True python manage.py collectstatic
+- TRAVIS=False PROD=True python manage.py makemigrations
+- TRAVIS=False PROD=True python manage.py migrate
 - test $TRAVIS_BRANCH == "master" && docker login -u=$DOCKER_USERNAME -p=$DOCKER_PWD
   $DOCKER_URL & docker build -t $DOCKER_URL/100point:$APP_MAJOR_VERSION.$APP_MINOR_VERSION.$TRAVIS_BUILD_NUMBER
   . && docker push $DOCKER_URL/100point:$APP_MAJOR_VERSION.$APP_MINOR_VERSION.$TRAVIS_BUILD_NUMBER

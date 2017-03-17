@@ -1,6 +1,16 @@
 from rest_framework import serializers
 
-from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
+from .models import Member, GivenPoint, GivenPointArchived, PointDistribution, Team
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ('instance_id', 'instance_name')
+
+    def create(self, validated_data):
+        team = Team.objects.create(**validated_data)
+        return team
 
 
 class MemberSerializer(serializers.ModelSerializer):

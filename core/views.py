@@ -1,6 +1,6 @@
-from .models import Member, GivenPoint, GivenPointArchived, PointDistribution
+from .models import Member, GivenPoint, GivenPointArchived, PointDistribution, Team
 from .serializers import MemberSerializer, GivenPointArchivedSerializer, PointDistributionSerializer, \
-    GivenPointSerializer
+    GivenPointSerializer, TeamSerializer
 from .points_operation import validate_provisional_point_distribution, check_batch_includes_all_members, \
     check_all_point_values_are_valid
 from .utils import is_current_week, get_member, filter_final_points_distributions, get_all_members, \
@@ -20,11 +20,61 @@ from pointdistribution.settings import VSTS_BASE_URL, SETTING_MANAGE_BASE_URL, S
 
 import requests
 import logging
+import json
 
 
 def construct_url_for_project(instance_name):
     request_url = VSTS_BASE_URL.format(instance_name)
     return request_url
+
+
+class TeamList(APIView):
+    """
+    Get all teams or a team with all its member
+    Endpoint: **/v1/teams/all or **/v1/teams/team/?instance_id=2349
+    """
+    def get(self, request):
+        instance_id = request.GET.get('instance_id', '')
+
+        if instance_id is None or instance_id == '':
+            # Return all teams
+            teams = Team.objects.all()
+            teams_list = {}
+
+            for team in teams:
+                instance_id = team.instance_id
+                instance_name = team.instance_name
+                # Go fetch each team
+                # TODO: Need to optimize this in the future
+                members = Member.objects.get(instance_id=instance_id)
+                members_serializer = MemberSerializer(members, many=True)
+                teams_list[instance_id] = {
+                    'instance_name': instance_name,
+                    'members': members_serializer.data
+                }
+
+            return Response(data=json.dumps(teams_list), status=status.HTTP_200_OK)
+        elif instance_id is not None and instance_id != '':
+
+            try:
+                team = Team.objects.get(instance_id=instance_id)
+
+                members = Member.objects.get(instance_id=instance_id)
+                members_serializer = MemberSerializer(members, many=True)
+
+                team_list = dict()
+                team_list[instance_id] = {
+                    'instance_name': team.instance_name,
+                    'members': members_serializer.data
+                }
+
+                return Response(data=json.dumps(team_list), status=status.HTTP_200_OK)
+
+            except Team.DoesNotExist as e:
+                logging.warn(e)
+                return Response(data=e, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class MemberList(APIView):
@@ -39,6 +89,14 @@ class MemberList(APIView):
         instance_id = request.GET.get('instance_id', '')
         vsts_instance = request.GET.get('instance_name', '')
         user_email = request.GET.get('user_email', '')
+
+        # Creating team
+        try:
+            logging.info("Creating team instance_id={} instance_name={}".format(instance_id, vsts_instance))
+            Team.objects.create(instance_id=instance_id, instance_name=vsts_instance)
+
+        except IntegrityError as e:
+            logging.warn(e)
 
         logging.info("Received {} {} {}".format(instance_id, vsts_instance, user_email))
 

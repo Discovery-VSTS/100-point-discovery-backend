@@ -1,6 +1,14 @@
 from django.db import models
 
 
+class Team(models.Model):
+    instance_id = models.CharField(max_length=255, primary_key=True, auto_created=False)
+    instance_name = models.CharField(max_length=255, blank=False)
+
+    def __str__(self):
+        return self.instance_id.__str__() + " - " + self.instance_name.__str__()
+
+
 class Member(models.Model):
     identifier = models.CharField(primary_key=True, max_length=255)
     name = models.CharField(max_length=30)
