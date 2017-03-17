@@ -12,7 +12,6 @@ python:
 install:
 - pip install -r requirements.txt
 script:
-- TRAVIS=False PROD=False python manage.py collectstatic
 - TRAVIS=False PROD=False python manage.py makemigrations
 - TRAVIS=False PROD=False python manage.py migrate
 - python manage.py test
