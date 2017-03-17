@@ -41,6 +41,9 @@ This is the list of endpoints:
 
 ![List of endpoints](http://i.imgur.com/YPFEKu7.png)
 
+- **v1/teams/all/** to get all teams with its members
+- **v1/teams/team/?instance_id=<instance_id>** to get **one** team with its members
+
 This list can be accessed through `127.0.0.1:8000/docs`
 
 Visit each link in the browser for a detailed description of each endpoint. Proper documentation will be created in the future.
