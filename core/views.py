@@ -46,7 +46,7 @@ class TeamList(APIView):
                 instance_name = team.instance_name
                 # Go fetch each team
                 # TODO: Need to optimize this in the future
-                members = Member.objects.get(instance_id=instance_id)
+                members = Member.objects.all().filter(instance_id=instance_id)
                 members_serializer = MemberSerializer(members, many=True)
                 teams_list[instance_id] = {
                     'instance_name': instance_name,
@@ -59,7 +59,7 @@ class TeamList(APIView):
             try:
                 team = Team.objects.get(instance_id=instance_id)
 
-                members = Member.objects.get(instance_id=instance_id)
+                members = Member.objects.all().filter(instance_id=instance_id)
                 members_serializer = MemberSerializer(members, many=True)
 
                 team_list = dict()
