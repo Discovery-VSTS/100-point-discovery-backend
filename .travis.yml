@@ -15,6 +15,7 @@ script:
 - TRAVIS=False PROD=False python manage.py makemigrations
 - TRAVIS=False PROD=False python manage.py migrate
 - python manage.py test
+- codeclimate-test-reporter --token $CODECLIMATE_TOKEN
 after_success:
 - TRAVIS=False PROD=True python manage.py makemigrations
 - TRAVIS=False PROD=True python manage.py migrate

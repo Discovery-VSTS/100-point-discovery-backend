@@ -225,3 +225,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 VSTS_BASE_URL = 'https://{}.visualstudio.com/DefaultCollection/_apis/projects?api-version=1.0'
 SETTING_MANAGE_BASE_URL = os.getenv('SETTING_MANAGE_BASE_URL', 'https://discovery-settingmanagement.azurewebsites.net/')
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=core',
+]
