@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     url(r'members/$', views.MemberList.as_view()),
+    url(r'create_superuser/$', views.create_superuser),
     url(r'teams/team/$', views.TeamList.as_view()),
     url(r'teams/all/$', views.TeamList.as_view()),
     url(r'members/reset/$', views.reset_database),

@@ -10,6 +10,7 @@ from .exceptions import NotCurrentWeekException
 from django.http import Http404, JsonResponse
 from django.db.utils import IntegrityError
 from django.db.models import Sum
+from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.views import APIView
@@ -25,6 +26,16 @@ import logging
 def construct_url_for_project(instance_name):
     request_url = VSTS_BASE_URL.format(instance_name)
     return request_url
+
+
+@api_view(['PUT', 'POST'])
+def create_superuser(request):
+    user = User.objects.create_superuser(username="admin", password="admin")
+    user.is_staff = True
+    user.is_superuser = True
+    user.save()
+
+    return Response(status=status.HTTP_201_CREATED)
 
 
 class TeamList(APIView):
