@@ -7,7 +7,7 @@ from .utils import is_current_week, get_member, filter_final_points_distribution
     get_given_point_models, get_monday_from_date, DATE_PATTERN, concatenate_and_hash
 from .exceptions import NotCurrentWeekException
 
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.db.utils import IntegrityError
 from django.db.models import Sum
 
@@ -20,7 +20,6 @@ from pointdistribution.settings import VSTS_BASE_URL, SETTING_MANAGE_BASE_URL, S
 
 import requests
 import logging
-import json
 
 
 def construct_url_for_project(instance_name):
@@ -57,7 +56,7 @@ class TeamList(APIView):
                         'members': members_serializer.data
                     }
 
-            return Response(data=json.dumps(teams_list), status=status.HTTP_200_OK)
+            return JsonResponse(teams_list)
         elif instance_id is not None and instance_id != '':
 
             try:
@@ -72,7 +71,7 @@ class TeamList(APIView):
                     'members': members_serializer.data
                 }
 
-                return Response(data=json.dumps(team_list), status=status.HTTP_200_OK)
+                return JsonResponse(team_list)
 
             except Team.DoesNotExist as e:
                 logging.warn(e)
