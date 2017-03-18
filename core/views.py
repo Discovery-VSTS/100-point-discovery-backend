@@ -30,7 +30,7 @@ def construct_url_for_project(instance_name):
 
 @api_view(['PUT', 'POST'])
 def create_superuser(request):
-    user = User.objects.create_superuser(username="admin", password="admin")
+    user = User.objects.create_superuser(username="admin", password="admin", email="admin@admin.com")
     user.is_staff = True
     user.is_superuser = True
     user.save()
