@@ -221,6 +221,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = 'staticfiles'
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 VSTS_BASE_URL = 'https://{}.visualstudio.com/DefaultCollection/_apis/projects?api-version=1.0'
