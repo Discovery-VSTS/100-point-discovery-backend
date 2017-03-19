@@ -27,6 +27,11 @@ def validate_provisional_point_distribution(point_distribution, members_set):
         raise MembersMissingException()
     if len(from_members) != len(members_set):
         raise NotAllMembersGavePointsException()
+    sum_points = 0
+    for member, points in member_to_point.items():
+        sum_points += points
+    if sum_points != 100:
+        raise InvalidSumPointsException()
     for given_point in given_points:
         given_point_dict = model_to_dict(given_point)
         del given_point_dict['point_distribution']
@@ -36,19 +41,12 @@ def validate_provisional_point_distribution(point_distribution, members_set):
             raise InvalidGivenPointsArchivedData()
         serializer.save()
         given_point.delete()
-    sum_points = 0
     week = point_distribution.week
     instance_id = point_distribution.instance_id
-    entries = []
     for member, points in member_to_point.items():
         new_given_point_entry = GivenPoint(to_member=member, points=points,
                                            point_distribution=point_distribution, week=week, instance_id=instance_id)
-        entries.append(new_given_point_entry)
-        sum_points += points
-    if sum_points != 100:
-        raise InvalidSumPointsException()
-    for entry in entries:
-        entry.save()
+        new_given_point_entry.save()
 
 
 def check_batch_includes_all_members(given_points, members_set):
