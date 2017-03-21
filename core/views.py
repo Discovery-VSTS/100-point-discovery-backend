@@ -208,6 +208,7 @@ class MemberPointsHistory(APIView):
             for key, value in filtered_results.items():
                 value.from_member = None
                 filtered_results_list.append(value)
+            filtered_results_list.sort(key=lambda r: r.week)
             serializer = GivenPointArchivedSerializer(filtered_results_list, many=True)
         else:
             given_points = self.get_given_points_member(member, instance_id)
