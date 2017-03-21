@@ -62,3 +62,6 @@ class GivenPointArchived(models.Model):
 
     class Meta:
         unique_together = ('to_member', 'week', 'from_member', 'instance_id')
+
+    def __str__(self):
+        return self.week.__str__() + ", from " + self.from_member.__str__() + " to " + self.to_member.__str__()
