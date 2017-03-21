@@ -202,7 +202,8 @@ class MemberPointsHistory(APIView):
         if is_filtered:
             filtered_results = {}
             for gp in given_points:
-                filtered_results[gp.to_member] = gp
+                key = concatenate_and_hash(gp.to_member, gp.week)
+                filtered_results[key] = gp
             filtered_results_list = []
             for key, value in filtered_results.items():
                 value.from_member = None
