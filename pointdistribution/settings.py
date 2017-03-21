@@ -160,6 +160,7 @@ elif PROD:
             'PASSWORD': os.environ['DB_PWD'],
             'HOST': os.environ['DB_HOST'],
             'PORT': os.environ['DB_PORT'],
+            'CONN_MAX_AGE': 60
         }
     }
 
