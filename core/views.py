@@ -9,7 +9,7 @@ from .exceptions import NotCurrentWeekException
 
 from django.http import Http404, JsonResponse
 from django.db.utils import IntegrityError
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.contrib.auth.models import User
 
 from rest_framework import status
@@ -182,7 +182,7 @@ class MemberPointsHistory(APIView):
     """
     Get all the given points a user received
 
-    Endpoint: **/v1/member/history/<email>/?instance_id=1234**
+    Endpoint: **/v1/member/history/<email>/?instance_id=1234&filtered=true**
 
     Methods: *GET*
     """
@@ -195,9 +195,22 @@ class MemberPointsHistory(APIView):
 
     def get(self, request, email):
         instance_id = request.GET.get('instance_id', '')
+        is_filtered = request.GET.get('filtered', 'false')
+        is_filtered = (True if is_filtered == 'true' else False)
         member = get_member(email, instance_id)
         given_points = self.get_given_points_member(member, instance_id)
-        serializer = GivenPointArchivedSerializer(given_points, many=True)
+        if is_filtered:
+            filtered_results = {}
+            for gp in given_points:
+                filtered_results[gp.to_member] = gp
+            filtered_results_list = []
+            for key, value in filtered_results.items():
+                value.from_member = None
+                filtered_results_list.append(value)
+            serializer = GivenPointArchivedSerializer(filtered_results_list, many=True)
+        else:
+            given_points = self.get_given_points_member(member, instance_id)
+            serializer = GivenPointArchivedSerializer(given_points, many=True)
         return Response(serializer.data)
 
 
