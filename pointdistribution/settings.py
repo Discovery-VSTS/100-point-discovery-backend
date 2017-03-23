@@ -26,9 +26,11 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'some_key')
 DEBUG = eval(os.getenv('DEBUG', 'True'))
 TRAVIS = (True if os.getenv('TRAVIS', 'false') == 'true' else False)
 PROD = eval(os.getenv('PROD', 'False'))
+# PERIOD = { 'weekly', 'byweekly' }
+PERIOD = os.getenv('PERIOD', 'weekly')
 
-#SESSION_COOKIE_SECURE = True
-#CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = [
     "127.0.0.1",

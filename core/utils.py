@@ -1,11 +1,19 @@
 import datetime
 import hashlib
 from .models import Member, PointDistribution, GivenPoint
+from pointdistribution.settings import PERIOD
 
 from django.http import Http404
 
 DATE_PATTERN = '%Y-%m-%d'
 WEEK_PATTERN = '%Y-%W'
+
+
+def is_current_period(date, pattern):
+    if PERIOD == 'weekly':
+        return is_current_week(date, pattern)
+    else:
+        return is_current_biweek(date, pattern)
 
 
 def is_current_week(date, pattern):
@@ -14,9 +22,29 @@ def is_current_week(date, pattern):
     return date == now
 
 
+def is_current_biweek(date, pattern):
+    date = datetime.datetime.strptime(date, pattern).isocalendar()[:2]
+    this_week = datetime.datetime.now().isocalendar()[:2]
+    last_week = (datetime.datetime.now() - datetime.timedelta(days=7)).isocalendar()[:2]
+    return last_week <= date <= this_week
+
+
+def get_first_day_of_distribution(date, pattern):
+    if PERIOD == 'weekly':
+        return get_monday_from_date(date, pattern)
+    else:
+        return get_first_biweekly_date(date, pattern)
+
+
 def get_monday_from_date(date, pattern):
     date_obj = datetime.datetime.strptime(date, pattern)
     monday = date_obj - datetime.timedelta(days=date_obj.weekday())
+    return monday.strftime(pattern)
+
+
+def get_first_biweekly_date(date, pattern):
+    date_obj = datetime.datetime.strptime(date, pattern)
+    monday = date_obj - datetime.timedelta(days=7)
     return monday.strftime(pattern)
 
 
