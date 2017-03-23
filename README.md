@@ -58,3 +58,4 @@ Visit each link in the browser for a detailed description of each endpoint. Prop
 - **DB_PWD:** string containing the database password
 - **DB_HOST:** string containing the database host
 - **DB_PORT:** integer indicating the database port
+- **PERIOD:** enumeration { 'weekly', 'biweekly' } indicating if the point distrubitons are weekly of biweekly
